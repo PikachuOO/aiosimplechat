@@ -109,3 +109,11 @@ class TestClient(unittest.TestCase):
         testclient.send_msg('test_message')
         msg = writer.getvalue()
         self.assertEqual(b'test_message\n', msg)
+
+    @asynctest
+    def test_close(self):
+        testclient = client.Client()
+        writer = io.BytesIO()
+        testclient.writer = writer
+        testclient.close()
+        self.assertEqual(b'close()\n', writer.getvalue())
