@@ -24,8 +24,16 @@ class Server:
             self.loop.stop()
 
     @asyncio.coroutine
+    def send_to_client(self, peername, msg):
+        for client in self.clients:
+            if client.peername == peername:
+                print('Sending to {}'.format(client.peername))
+                client.writer.write('{}\n'.format(msg.decode().strip()).encode())
+                return
+
+    @asyncio.coroutine
     def send_to_all_clients(self, peername, msg):
-        print('Got message "{}", spreading the word'.format(msg.decode().strip()))
+        print('Got message "{}", send to all clients'.format(msg.decode().strip()))
         for client in self.clients:
             print('Sending to {}'.format(client.peername))
             client.writer.write('{}: {}\n'.format(peername, msg.decode().strip()).encode())
@@ -42,7 +50,7 @@ class Server:
         peername = writer.transport.get_extra_info('peername')
         new_client = Client(peername, reader, writer)
         self.clients.append(new_client)
-        writer.write('Welcome to this server client: {}\n'.format(peername).encode())
+        yield from self.send_to_client(new_client.peername, 'Welcome to this server client: {}'.format(peername).encode())
         while not reader.at_eof():
             try:
                 msg = yield from reader.readline()
@@ -53,8 +61,7 @@ class Server:
                     else:
                         print('User {} disconnected'.format(peername))
                         self.clients.remove(new_client)
-                        for client in self.clients:
-                            client.writer.write('{}: User disconnected\n'.format(peername).encode())
+                        self.send_to_all_clients(new_client.peername, b'User disconnected')
                         writer.write_eof()
             except ConnectionResetError as e:
                 print('ERROR: {}'.format(e))

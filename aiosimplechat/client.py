@@ -39,7 +39,6 @@ class Client:
         try:
             reader, writer = yield from asyncio.open_connection('127.0.0.1', 8089)
             asyncio.async(self.create_input())
-            writer.write(b'Hello server!\n')
             self.reader = reader
             self.writer = writer
             while not reader.at_eof():
