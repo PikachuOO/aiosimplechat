@@ -73,7 +73,7 @@ def main():
     try:
         loop.run_forever()
     except KeyboardInterrupt:
-        print('receieved interrupt, closing')
+        print('received interrupt, closing')
         mainserver.close()
     finally:
         loop.close()

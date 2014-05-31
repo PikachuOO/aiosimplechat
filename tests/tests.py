@@ -1,7 +1,9 @@
 import asyncio
+import io
 import unittest
 import random
 from aiosimplechat import server
+from aiosimplechat import client
 
 
 def asynctest(f):
@@ -92,4 +94,18 @@ class TestServer(unittest.TestCase):
 
 
 class TestClient(unittest.TestCase):
-    pass
+
+    def setUp(self):
+        pass
+
+    def test_watch_stdin(self):
+        client.input = lambda _: 'testing'
+        self.assertEqual('testing', client.watch_stdin())
+
+    def test_send_msg(self):
+        writer = io.BytesIO()
+        testclient = client.Client()
+        testclient.writer = writer
+        testclient.send_msg('test_message')
+        msg = writer.getvalue()
+        self.assertEqual(b'test_message\n', msg)
