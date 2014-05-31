@@ -10,12 +10,8 @@ class Client:
     reader = None
     writer = None
 
-    def __init__(self):
-        pass
-
     def send_msg(self, msg):
         msg = '{}\n'.format(msg).encode()
-        assert type(msg) is bytes
         self.writer.write(msg)
 
     def close(self):
@@ -42,7 +38,7 @@ class Client:
         print('Connecting...')
         try:
             reader, writer = yield from asyncio.open_connection('127.0.0.1', 8089)
-            asyncio.async(C.create_input())
+            asyncio.async(self.create_input())
             writer.write(b'Hello server!\n')
             self.reader = reader
             self.writer = writer
@@ -57,10 +53,10 @@ class Client:
             self.close()
 
 
-if __name__ == '__main__':
+def main():
     loop = asyncio.get_event_loop()
-    C = Client()
-    connect = asyncio.async(asyncio.async(C.connect()))
+    client = Client()
+    asyncio.async(asyncio.async(client.connect()))
     try:
         loop.run_forever()
     except KeyboardInterrupt:
@@ -69,3 +65,7 @@ if __name__ == '__main__':
         print('Got keyboard interrupt <ctrl-C>, please send "close()" to exit.')
         loop.run_forever()
     loop.close()
+
+
+if __name__ == '__main__':
+    main()

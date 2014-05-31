@@ -8,6 +8,9 @@ class Server:
     clients = []
     server = None
 
+    def __init__(self, loop):
+        self.loop = loop
+
     @asyncio.coroutine
     def run_server(self):
         self.server = yield from asyncio.start_server(self.client_connected, '127.0.0.1', 8089)
@@ -51,23 +54,23 @@ class Server:
                 self.clients.remove(new_client)
                 return
 
-if __name__ == '__main__':
-    MainServer = Server()
+    def close(self):
+        self.close_clients()
+        self.loop.stop()
 
-    @asyncio.coroutine
-    def start_server():
-        yield from asyncio.async(MainServer.run_server())
 
-    server_task = asyncio.async(start_server())
+def main():
     loop = asyncio.get_event_loop()
+    mainserver = Server(loop)
+    asyncio.async(mainserver.run_server())
     try:
         loop.run_forever()
     except KeyboardInterrupt:
         print('receieved interrupt, closing')
-        MainServer.close_clients()
-        server = server_task.result()
-        if server:
-            server.close()
-        loop.stop()
+        mainserver.close()
     finally:
         loop.close()
+
+
+if __name__ == '__main__':
+    main()
