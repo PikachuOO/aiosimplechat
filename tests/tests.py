@@ -1,7 +1,7 @@
 import asyncio
 import unittest
 import random
-import server
+from aiosimplechat import server
 
 
 def asynctest(f):
@@ -31,7 +31,6 @@ class TestServer(unittest.TestCase):
 
         port = generate_port()
         self.mainserver = server.Server(host='127.0.0.1', port=port)
-        print(used_ports)
 
     @asynctest
     def test_if_server_runs(self):
@@ -90,3 +89,7 @@ class TestServer(unittest.TestCase):
         while not reader.at_eof():
             yield from reader.readline()
         self.assertFalse(self.mainserver.clients)
+
+
+class TestClient(unittest.TestCase):
+    pass
