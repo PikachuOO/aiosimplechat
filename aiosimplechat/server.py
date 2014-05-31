@@ -24,7 +24,7 @@ class Server:
             self.loop.stop()
 
     @asyncio.coroutine
-    def spread_the_word(self, peername, msg):
+    def send_to_all_clients(self, peername, msg):
         print('Got message "{}", spreading the word'.format(msg.decode().strip()))
         for client in self.clients:
             print('Sending to {}'.format(client.peername))
@@ -49,7 +49,7 @@ class Server:
                 if msg:
                     print('Server Received: "{}"'.format(msg.decode().strip()))
                     if not msg.decode().strip() == 'close()':
-                        yield from self.spread_the_word(peername, msg)
+                        yield from self.send_to_all_clients(peername, msg)
                     else:
                         print('User {} disconnected'.format(peername))
                         self.clients.remove(new_client)
@@ -73,7 +73,7 @@ def main():
     try:
         loop.run_forever()
     except KeyboardInterrupt:
-        print('received interrupt, closing')
+        print('Received interrupt, closing')
         mainserver.close()
     finally:
         loop.close()
