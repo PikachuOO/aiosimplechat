@@ -11,6 +11,10 @@ class Client:
     writer = None
     sockname = None
 
+    def __init__(self, host='127.0.0.1', port=8089):
+        self.host = host
+        self.port = port
+
     def send_msg(self, msg):
         msg = '{}\n'.format(msg).encode()
         self.writer.write(msg)
@@ -38,7 +42,7 @@ class Client:
     def connect(self):
         print('Connecting...')
         try:
-            reader, writer = yield from asyncio.open_connection('127.0.0.1', 8089)
+            reader, writer = yield from asyncio.open_connection(self.host, self.port)
             asyncio.async(self.create_input())
             self.reader = reader
             self.writer = writer
