@@ -10,6 +10,7 @@ Python 3.3+
 
 ### Usage:
 Start server.py
+
 Start as many client.py instances as you like and start chatting to yourself!
 
 ### Goal:
