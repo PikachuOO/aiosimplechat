@@ -1,5 +1,5 @@
-asyncio
-=======
+aiosimplechat
+=============
 
 Very simple client-server chat application.
 
