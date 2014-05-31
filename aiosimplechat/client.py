@@ -9,6 +9,7 @@ def watch_stdin():
 class Client:
     reader = None
     writer = None
+    sockname = None
 
     def send_msg(self, msg):
         msg = '{}\n'.format(msg).encode()
@@ -41,6 +42,7 @@ class Client:
             asyncio.async(self.create_input())
             self.reader = reader
             self.writer = writer
+            self.sockname = writer.get_extra_info('sockname')
             while not reader.at_eof():
                 msg = yield from reader.readline()
                 if msg:
