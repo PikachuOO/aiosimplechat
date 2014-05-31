@@ -8,14 +8,20 @@ class Server:
     clients = []
     server = None
 
-    def __init__(self, loop):
-        self.loop = loop
+    def __init__(self, host='127.0.0.1', port=8089):
+        self.loop = asyncio.get_event_loop()
+        self.host = host
+        self.port = port
+        self.clients = []
 
     @asyncio.coroutine
     def run_server(self):
-        self.server = yield from asyncio.start_server(self.client_connected, '127.0.0.1', 8089)
-        print('Running server on default host and port')
-        return self.server
+        try:
+            self.server = yield from asyncio.start_server(self.client_connected, self.host, self.port)
+            print('Running server on {}:{}'.format(self.host, self.port))
+        except OSError:
+            print('Cannot bind to this port! Is the server already running?')
+            self.loop.stop()
 
     @asyncio.coroutine
     def spread_the_word(self, peername, msg):
@@ -49,6 +55,7 @@ class Server:
                         self.clients.remove(new_client)
                         for client in self.clients:
                             client.writer.write('{}: User disconnected\n'.format(peername).encode())
+                        writer.write_eof()
             except ConnectionResetError as e:
                 print('ERROR: {}'.format(e))
                 self.clients.remove(new_client)
@@ -61,7 +68,7 @@ class Server:
 
 def main():
     loop = asyncio.get_event_loop()
-    mainserver = Server(loop)
+    mainserver = Server()
     asyncio.async(mainserver.run_server())
     try:
         loop.run_forever()
