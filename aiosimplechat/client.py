@@ -17,7 +17,7 @@ class Client:
     def close(self):
         print('Closing.')
         if self.writer:
-            self.writer.write(b'close()\n')
+            self.send_msg('close()')
         mainloop = asyncio.get_event_loop()
         mainloop.stop()
 
