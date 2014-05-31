@@ -117,3 +117,9 @@ class TestClient(unittest.TestCase):
         testclient.writer = writer
         testclient.close()
         self.assertEqual(b'close()\n', writer.getvalue())
+
+    @unittest.skip
+    @asynctest
+    def test_create_input(self):
+        # no idea how to test this.
+        pass
