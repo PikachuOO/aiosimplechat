@@ -62,7 +62,7 @@ class Server:
                     print('Server Received: "{}"'.format(msg))
                     if not msg == 'close()':
                         if msg.startswith('@private'):
-                            self.receive_private_msg(msg)
+                            self.receive_private_msg(msg)  # Might need yield from if it becomes a coroutine
                         else:
                             yield from self.send_to_all_clients(peername, msg)
                     else:

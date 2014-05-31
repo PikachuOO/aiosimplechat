@@ -52,10 +52,24 @@ class TestServer(unittest.TestCase):
         self.assertIn(b'Welcome to this server', msg)
 
     @asynctest
-    def test_if_message_is_sent_to_clients(self):
+    def test_send_to_all_clients(self):
         yield from self.mainserver.run_server()
         reader, writer = yield from asyncio.open_connection(self.mainserver.host, self.mainserver.port)
         writer.write(b'test_message\n')
+        while True:
+            msg = yield from reader.readline()
+            print(msg)
+            if not b'Welcome to this server' in msg:
+                self.assertIn(b'test_message\n', msg)
+                break
+
+    @asynctest
+    def test_send_to_client(self):
+        yield from self.mainserver.run_server()
+        reader, writer = yield from asyncio.open_connection(self.mainserver.host, self.mainserver.port)
+        sockname = writer.get_extra_info('sockname')
+        print(sockname)
+        yield from self.mainserver.send_to_client(sockname, 'test_message')
         while True:
             msg = yield from reader.readline()
             print(msg)
