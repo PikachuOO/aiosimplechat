@@ -19,17 +19,17 @@ See if it's possible to import these into an actual program to do real easy netw
 
 It seems pretty performant.
 With ipython3 in the aiosimplechat directory:
-```
-from client import Client
-import asyncio
 
-for x in range(1020):  # 1024 is hardlimit, can't seem to be able to change it.
-  client = Client()
-  asyncio.async(client.connect())
+  from client import Client
+  import asyncio
   
-loop = asyncio.get_event_loop()
-loop.run_forever()
-```
+  for x in range(1020):  # 1024 is hardlimit, can't seem to be able to change it.
+    client = Client()
+    asyncio.async(client.connect())
+    
+  loop = asyncio.get_event_loop()
+  loop.run_forever()
+
 
 The initial load takes a second, but the messages being relayed are near instant.
 
