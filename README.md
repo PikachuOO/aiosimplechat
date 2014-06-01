@@ -18,12 +18,16 @@ See if it's possible to import these into an actual program to do real easy netw
 
 
 It seems pretty performant.
-With ipython3 in the aiosimplechat directory:
+With python3 in the aiosimplechat directory:
 ```python
+from server import Server
 from client import Client
 import asyncio
+
+server = Server()
+asyncio.async(run_server())
   
-for x in range(1020):  # 1024 is hardlimit, can't seem to be able to change it.
+for x in range(1000):
     client = Client()
     asyncio.async(client.connect())
     
