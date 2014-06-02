@@ -2,7 +2,7 @@ import asyncio
 
 
 def watch_stdin():
-    msg = input('')
+    msg = input()
     return msg
 
 
