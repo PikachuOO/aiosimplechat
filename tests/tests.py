@@ -79,7 +79,7 @@ class TestServer(unittest.TestCase):
         yield from self.mainserver.run_server()
         reader, writer = yield from asyncio.open_connection(self.mainserver.host, self.mainserver.port)
         sockname = writer.get_extra_info('sockname')
-        yield from self.mainserver.send_to_client(sockname, 'Sent just to me')
+        self.mainserver.send_to_client(sockname, 'Sent just to me')
         while True:
             msg = yield from reader.readline()
             if not b'Welcome to this server' in msg:
@@ -111,7 +111,7 @@ class TestClient(unittest.TestCase):
         pass
 
     def test_watch_stdin(self):
-        client.input = lambda _: 'testing'
+        client.input = lambda: 'testing'
         self.assertEqual('testing', client.watch_stdin())
 
     def test_send_msg(self):
