@@ -1,18 +1,18 @@
 import asyncio
 from collections import namedtuple
 
-Client = namedtuple('Client', 'peername reader writer')
+Client = namedtuple('Client', 'reader writer')
 
 
 class Server:
-    clients = []
+    clients = {}
     server = None
 
     def __init__(self, host='127.0.0.1', port=8089):
         self.loop = asyncio.get_event_loop()
         self.host = host
         self.port = port
-        self.clients = []
+        self.clients = {}
 
     @asyncio.coroutine
     def run_server(self):
@@ -25,23 +25,22 @@ class Server:
 
     @asyncio.coroutine
     def send_to_client(self, peername, msg):
-        for client in self.clients:
-            if client.peername == peername:
-                print('Sending to {}'.format(client.peername))
-                client.writer.write('{}\n'.format(msg).encode())
-                return
+        client = self.clients[peername]
+        print('Sending to {}'.format(peername))
+        client.writer.write('{}\n'.format(msg).encode())
+        return
 
     @asyncio.coroutine
     def send_to_all_clients(self, peername, msg):
         print('Got message "{}", send to all clients'.format(msg))
-        for client in self.clients:
-            print('Sending to {}'.format(client.peername))
+        for client_peername, client in self.clients.items():
+            print('Sending to {}'.format(client_peername))
             client.writer.write('{}: {}\n'.format(peername, msg).encode())
         return
 
     def close_clients(self):
         print('Sending EndOfFile to all clients to close them.')
-        for client in self.clients:
+        for peername, client in self.clients.items():
             client.writer.write_eof()
 
     def receive_private_msg(self, msg):
@@ -51,9 +50,9 @@ class Server:
     def client_connected(self, reader, writer):
         print('Client connected.')
         peername = writer.transport.get_extra_info('peername')
-        new_client = Client(peername, reader, writer)
-        self.clients.append(new_client)
-        yield from self.send_to_client(new_client.peername, 'Welcome to this server client: {}'.format(peername))
+        new_client = Client(reader, writer)
+        self.clients[peername] = new_client
+        yield from self.send_to_client(peername, 'Welcome to this server client: {}'.format(peername))
         while not reader.at_eof():
             try:
                 msg = yield from reader.readline()
@@ -67,12 +66,12 @@ class Server:
                             yield from self.send_to_all_clients(peername, msg)
                     else:
                         print('User {} disconnected'.format(peername))
-                        self.clients.remove(new_client)
-                        self.send_to_all_clients(new_client.peername, 'User disconnected')
+                        del self.clients[peername]
+                        self.send_to_all_clients(peername, 'User disconnected')
                         writer.write_eof()
             except ConnectionResetError as e:
                 print('ERROR: {}'.format(e))
-                self.clients.remove(new_client)
+                del self.clients[peername]
                 return
 
     def close(self):
