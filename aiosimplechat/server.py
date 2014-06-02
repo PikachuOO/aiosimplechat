@@ -23,14 +23,12 @@ class Server:
             print('Cannot bind to this port! Is the server already running?')
             self.loop.stop()
 
-    @asyncio.coroutine
     def send_to_client(self, peername, msg):
         client = self.clients[peername]
         print('Sending to {}'.format(peername))
         client.writer.write('{}\n'.format(msg).encode())
         return
 
-    @asyncio.coroutine
     def send_to_all_clients(self, peername, msg):
         print('Got message "{}", send to all clients'.format(msg))
         for client_peername, client in self.clients.items():
@@ -52,7 +50,7 @@ class Server:
         peername = writer.transport.get_extra_info('peername')
         new_client = Client(reader, writer)
         self.clients[peername] = new_client
-        yield from self.send_to_client(peername, 'Welcome to this server client: {}'.format(peername))
+        self.send_to_client(peername, 'Welcome to this server client: {}'.format(peername))
         while not reader.at_eof():
             try:
                 msg = yield from reader.readline()
@@ -63,7 +61,7 @@ class Server:
                         if msg.startswith('@private'):
                             self.receive_private_msg(msg)  # Might need yield from if it becomes a coroutine
                         else:
-                            yield from self.send_to_all_clients(peername, msg)
+                            self.send_to_all_clients(peername, msg)
                     else:
                         print('User {} disconnected'.format(peername))
                         del self.clients[peername]

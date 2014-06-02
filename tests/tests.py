@@ -67,7 +67,7 @@ class TestServer(unittest.TestCase):
     def test_send_to_all_clients(self):
         yield from self.mainserver.run_server()
         reader, writer = yield from asyncio.open_connection(self.mainserver.host, self.mainserver.port)
-        yield from self.mainserver.send_to_all_clients('Testrunner', b'Spreading the word')
+        self.mainserver.send_to_all_clients('Testrunner', b'Spreading the word')
         while True:
             msg = yield from reader.readline()
             if not b'Welcome to this server' in msg:
